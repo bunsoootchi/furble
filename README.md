@@ -1,7 +1,7 @@
 # FurBLE - Furby Web Bluetooth Demo
 Use Web Bluetooth to control your Furby Connect! Works best for Chrome on Android. No support for ios/ipadOS
 
-## To test this out, [click here](https://bunsoootchi.github.io/furble/furble.html)
+## To test this out, [click here](https://bunsoootchi.github.io/furble/index.html)
 ## You can also input pre-programmed [list of actions here](https://github.com/Jeija/bluefluff/blob/master/doc/actionlist.md)
 
 # IMPORTANT!
