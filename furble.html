@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Raff's Custom Furby Web Bluetooth</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='furble.css'>
+</head>
+<body>
+
+<!-- for slide-in status messages -->
+<div id='status' class='ok'>Furby Connected!</div>
+
+<!-- menu button and menu -->
+<button id='hamburger'>☰</button>
+<div id='menu'>
+    <h2>Raff's FurBLE</h2>
+    <ul>
+        <li><a href='#dlc'>DLC Upload</a></li>
+        <li><a href='#songs1'>DLC Buttons: Song Pack 1<br> <span style='font-size:10px;'> <i> We Dont Talk Anymore / Party Rock / Make Some Noise</i></span></a></li>
+        <li><a href='#songs2'>DLC Buttons: Song Pack 2<br> <span style='font-size:10px;'> <i> U Can't Touch This / Jingle Bell Rock / Down</i></span></a></li>
+        <li><a href='#songs3'>DLC Buttons: Song Pack 3<br> <span style='font-size:10px;'> <i> Still Into You / Call Me Maybe / Riptide</i></span></a></li>
+        <li><a href='#songs4'>DLC Buttons: Song Pack 4<br> <span style='font-size:10px;'> <i> Best Time Ever / Stay / Hanazuki / Call Me Maybe </i></span></a></li>
+        <li><a href='#songs5'>DLC Buttons: Song Pack 5<br> <span style='font-size:10px;'> <i> Hanazuki / Call Me Maybe / The Sign / Gangnam Style</i></span></a></li>
+        <li><a href='#songs6'>DLC Buttons: Song Pack 6<br> <span style='font-size:10px;'> <i> Unsteady / Best Song Ever / Random Video Reactions</i></span></a></li>
+
+
+        <li><a href='#dlcactions'>DLC Actions<br> <span style='font-size:10px;'> <i> DLC buttons appear here once DLC is activated</i></span></a></li>
+        <li><a href='#actions'>Send Custom Actions<br> <span style='font-size:10px;'> <i> Random Actions / Octave Notes / Custom Commands</i></span></a></li>
+
+
+        <li><a href='#shortcuts1'>Pre-built Actions 1<br> <span style='font-size:10px;'> <i> Birthday Song / Sleeping / Random Singing</i></span></a></li>
+        <li><a href='#shortcuts2'>Pre-built Actions 2<br> <span style='font-size:10px;'> <i> Random Voices / Silent Dancing</i></span></a></li>
+
+        <li><a href='#misc'>Miscellaneous<br> <span style='font-size:10px;'> <i> Antenna Color / Debug Menu / Sensors</i></span></a></li>
+    </ul>
+</div>
+
+
+<div class='header'>
+        <button id='connbtn' onclick='doConnectDisconnect()'>Connect</button>
+    <div><h1>Raff's FurBLE</h1>
+    <span id='state'>Not connected</span></div>
+    
+</div>
+
+<div id='furby-buttons'>
+
+    <section id='misc'>
+        <h2>Antenna Colour</h2>
+        <div class='row'>
+            <button onclick='setAntennaColor(255, 0,0)'>Red</button>
+            <button onclick='setAntennaColor(0, 255,0)'>Green</button>
+            <button onclick='setAntennaColor(0, 0, 255)'>Blue</button>
+            <button onclick='setAntennaColor(255, 255, 255)'>White</button>
+        </div>
+        <h2>Debug</h2>
+        <div class='row'>
+            <button onclick='cycleDebug()'>Eye Debug</button>
+            <button onclick='enableEyes(false)'>Eyes off</button>
+            <button onclick='enableEyes(true)'>Eyes on</button>
+        </div>
+        <h2>Sensors</h2>
+        <!--<div class='row'>
+                <button onclick='sendGPCmd([0x20, 0x0d])'>Start continuous</button>
+                <button onclick='sendGPCmd([0x20, 0x0e])'>Stop continuous</button>
+        </div>
+        <h2>State</h2>-->
+        <ul id='sensor-state'><li>Waiting for connection...</li></ul>
+    </section>
+
+    <section id='dlcactions'>
+        <h2>DLC Action Buttons</h2>
+        <p>DLC button commands show up here when DLC is activated. Reset furby, close and open chrome, and upload DLC again if not working.</p>
+        <div class='row' id='dlc-actions' style='max-width:100% !important;'></div>
+    </section>
+
+    <section id='actions'>
+        <h2>Action Sequences</h2>
+        <div class='row'>
+            <button onclick='triggerAction(39,3,8,1)'>Legendary!</button>
+            <button onclick='triggerAction(39,4,6,1)'>Nice</button>
+            <button onclick='triggerAction(39,3,1,1)'>Hey!</button>
+            <button onclick='triggerAction(8,0,0,0)'>Yaaas</button>
+        </div>
+        
+        <p style='font-size:10px; color:#dedede;'>
+            Do, Do, Re, Do, Fa, Mi <span style='margin-right:30px;'></span>
+            Do, Do, Re, Do, Sol, Fa <br>
+            Do, Do, Do, La, Fa, Mi, Re <span style='margin-right:30px;'></span>
+            Ti, Ti, La, Fa, Sol, Fa
+        </p>
+        <h2>Solfège Syllables</h2>
+        <div class='row'>
+            <button onclick='triggerAction(71,0,0,0)'>Do</button>
+            <button onclick='triggerAction(71,0,0,1)'>Re</button>
+            <button onclick='triggerAction(71,0,0,2)'>Mi</button>
+            <button onclick='triggerAction(71,0,0,3)'>Fa</button>
+        </div>
+        <div class='row'>
+            <button onclick='triggerAction(71,0,0,4)'>Sol</button>
+            <button onclick='triggerAction(71,0,0,5)'>La</button>
+            <button onclick='triggerAction(71,0,0,6)'>Ti</button>
+            <button onclick='triggerAction(71,0,0,7)'>Do</button>
+        </div>
+
+        <p>For the full list of commands, <a href="https://github.com/Jeija/bluefluff/blob/master/doc/actionlist.md" target=”_blank”> click here</a></p>
+        <div class='row'>
+            <input type='number' min='0' max='75' name='furby-action' value='39'>
+            <input type='number' min='0' max='4' name='furby-action' value='0'>
+            <input type='number' min='0' max='30' name='furby-action' value='0'>
+            <input type='number' min='0' max='10' name='furby-action' value='0'>
+            <button onclick='customAction()'>Send</button>
+        </div>
+
+    </section>
+
+    <section id='dlc'>
+        <h2>DLC Files</h2>
+        <div class='row'>
+            <select id='dlcname'></select>
+            <button onclick='dlcUploadClicked()'>Upload</button>
+        </div>
+        <progress id='dlcprogress'></progress>
+        <h2>Read Me First</h2>
+        <p>Always remember to reset your Furby Connect before uploading any DLC. To do this:</p>
+        <ul>
+            <li>Turn your furby upside down.</li>
+            <li>Push its tongue and pull its tail (at the same time!) for 10 seconds until it shuts down (eyes off, total silence).</li>
+            <li>If your furby doesn't shut down, try again.</li>
+        </ul>
+        <p>Check the DLC button packs in the sidebar for easy access.</p>
+        <p><b>Don't let your phone screen turn off during the process.</b></p>
+
+    </section>
+
+    <section id='shortcuts1'>
+        <h2>Pre-built Actions 1</h2>
+
+        <!-- Experimental -->
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function executeAllActionsFirst() {
+                const actions = [
+                    // Do, Do, Re, Do, Fa, Mi
+                    [71, 0, 0, 0], //Do
+                    [71, 0, 0, 1], //Re
+                    [71, 0, 0, 3], //Fa
+                    
+                    // Do, Do, Re, Do, Sol, Fa
+                    [71, 0, 0, 0], //Do
+                    
+                    [71, 0, 0, 1], //Re
+                    
+                    [71, 0, 0, 4], //Sol
+                    
+                    // Do, Do, Do, La, Fa, Mi, Re
+                    [71, 0, 0, 0], //Do
+                    
+                    [71, 0, 0, 7], //Do
+                    
+                    [71, 0, 0, 3], //Fa
+                    
+                    [71, 0, 0, 1], //Re
+                    // Ti, Ti, La, Fa, Sol, Fa
+                    
+                    [71, 0, 0, 6], //Ti
+                    
+                    [71, 0, 0, 3], //Fa
+                    
+                    [71, 0, 0, 3] //Fa
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 2500); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+         
+            function executeAllActionsSecond() {
+                const actions = [
+                    // Do, Do, Re, Do, Fa, Mi
+                    
+                    [71, 0, 0, 0], //Do
+                    
+                    [71, 0, 0, 0], //Do
+                    
+                    [71, 0, 0, 2], //Mi
+                    // Do, Do, Re, Do, Sol, Fa
+                    
+                    [71, 0, 0, 0], //Do
+         
+                    [71, 0, 0, 0], //Do
+         
+                    [71, 0, 0, 3], //Fa
+                    // Do, Do, Do, La, Fa, Mi, Re
+         
+                    [71, 0, 0, 0], //Do
+         
+                    [71, 0, 0, 5], //La
+         
+                    [71, 0, 0, 2], //Mi
+         
+                    // Ti, Ti, La, Fa, Sol, Fa
+                    [71, 0, 0, 6], //Ti
+         
+                    [71, 0, 0, 5], //La
+         
+                    [71, 0, 0, 4], //Sol
+         
+                    // Add more actions as needed
+                ];
+         
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 2500); // 1000ms = 1 second delay between actions
+                });
+            }
+         </script>
+         <div class='row'>
+            <p>Click this first:</p>
+            <button onclick='executeAllActionsFirst()'>Birthday 1st Furb</button> 
+         </div>
+         <div class='row'>
+            <p>Click this second:</p>
+            <button onclick='executeAllActionsSecond()'>Birthday 2nd Furb</button>
+         </div>
+         <!-- End experimental -->
+
+         <!-- Dreams -->
+         <p style='margin-top:20px;'>Dreams with snores</p>
+         <div class='row'>
+            <button onclick='triggerAction(74,0,3,1)'>Pirate 1</button>
+            <button onclick='triggerAction(74,0,3,2)'>Pirate 2</button>
+            <button onclick='triggerAction(74,0,2,1)'>Ninja 1</button>
+            <button onclick='triggerAction(74,0,2,2)'>Ninja 2</button>
+        </div>
+        <div class='row'>
+            <button onclick='triggerAction(74,0,5,0)'>Meow</button>
+            <button onclick='triggerAction(74,0,5,2)'>Purr</button>
+            <button onclick='triggerAction(74,0,0,1)'>Beatbox</button>
+            <button onclick='triggerAction(74,0,4,1)'>Celeb</button>
+        </div>
+
+        <!-- Singing -->
+        <p style='margin-top:20px;'>Singing Furb</p>
+        <div class='row'>
+            <button onclick='triggerAction(17,0,0,4)'>Long Sing</button>
+            <button onclick='triggerAction(17,1,0,3)'>Low Batt</button>
+            <button onclick='triggerAction(17,2,0,4)'>Electric</button>
+            <button onclick='triggerAction(17,3,0,4)'>Furbarin</button>
+        </div>
+
+    </section>
+
+    <section id='shortcuts2'>
+        <h2>Pre-built Actions 2</h2>
+
+        <!-- Random -->
+        <p style='margin-top:20px;'>Random Voices</p>
+        <div class='row'>
+            <button onclick='triggerAction(29,0,0,3)'>Check</button>
+            <button onclick='triggerAction(39,0,1,3)'>Ermagerd</button>
+            <button onclick='triggerAction(39,1,13,1)'>Fox Pants</button>
+            <button onclick='triggerAction(1,1,0,3)'>Wookie Yawn</button>
+        </div>
+        <p style='margin-top:20px;'>Silent Dancing</p>
+        <div class='row'>
+            <button onclick='triggerAction(18,0,0,1)'>Dance 1</button>
+            <button onclick='triggerAction(18,0,0,2)'>Dance 2</button>
+            <button onclick='triggerAction(18,0,0,3)'>Dance 3</button>
+            <button onclick='triggerAction(18,0,0,4)'>Dance 4</button>
+        </div>
+        <div class='row'>
+            <button onclick='triggerAction(18,0,0,5)'>Dance 5</button>
+            <button onclick='triggerAction(18,0,0,6)'>Dance 6</button>
+            <button onclick='triggerAction(18,0,0,7)'>Dance 7</button>
+            <button onclick='triggerAction(18,0,0,8)'>Dance 8</button>
+        </div>
+        <div class='row'>
+            <button onclick='triggerAction(18,0,0,9)'>Dance 9</button>
+            <button onclick='triggerAction(18,0,0,10)'>Dance 10</button>
+            <button onclick='triggerAction(18,0,0,11)'>Dance 11</button>
+            <button onclick='triggerAction(18,0,0,12)'>Dance 12</button>
+        </div>
+        <div class='row'>
+            <button onclick='triggerAction(18,0,0,13)'>Dance 13</button>
+            <button onclick='triggerAction(18,0,0,14)'>Dance 14</button>
+            <button onclick='triggerAction(18,0,0,15)'>Dance 15</button>
+            <button onclick='triggerAction(18,0,0,16)'>Dance 16</button>
+            <button onclick='triggerAction(18,0,0,17)'>Dance 17</button>
+        </div>
+    </section>
+
+    <section id='songs1'>
+        <h2>Songs Pack 1:</h2>
+        <p>Only works if you have Songs Pack 1 DLC loaded</p>
+
+        <!-- Experimental -->
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function wedonttalkanymore() {
+                const actions = [
+                    [75, 0, 2, 1,], 
+                    [75, 0, 2, 2,], 
+                    [75, 0, 2, 3,], 
+                    [75, 0, 2, 4,], 
+                    [75, 0, 2, 5,], 
+                    [75, 0, 2, 6,], 
+                    [75, 0, 2, 7,] 
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function partyrock() {
+                const actions = [
+                    [75, 0, 1, 1],
+                    [75, 0, 1, 2],
+                    [75, 0, 1, 3],
+                    [75, 0, 1, 4],
+                    [75, 0, 1, 5],
+                    [75, 0, 1, 6],
+                    [75, 0, 1, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function makesomenoise() {
+                const actions = [
+                    [75, 0, 4, 1,], 
+                    [75, 0, 4, 2,], 
+                    [75, 0, 4, 3,], 
+                    [75, 0, 4, 4,], 
+                    [75, 0, 4, 5,], 
+                    [75, 0, 4, 6,], 
+                    [75, 0, 4, 7,] 
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+         <div class='row'>
+            <button onclick='wedonttalkanymore()'>We Don't Talk Anymore</button> 
+            <button onclick='partyrock()'>Party Rock</button>
+            <button onclick='makesomenoise()'>Make Some Noise</button>
+         </div>
+         <!-- End experimental -->
+
+    </section>
+
+    <section id='songs2'>
+        <h2>Songs Pack 2:</h2>
+        <p>Only works if you have Songs Pack 2 DLC loaded</p>
+
+        <!-- Experimental -->
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function canttouchthis() {
+                const actions = [
+                    [75, 0, 1, 1,], 
+                    [75, 0, 1, 2,], 
+                    [75, 0, 1, 3,], 
+                    [75, 0, 1, 4,], 
+                    [75, 0, 1, 5,], 
+                    [75, 0, 1, 6,], 
+                    [75, 0, 1, 7,] 
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function jinglebellrock() {
+                const actions = [
+                    [75, 0, 2, 1],
+                    [75, 0, 2, 2],
+                    [75, 0, 2, 3],
+                    [75, 0, 2, 4],
+                    [75, 0, 2, 5],
+                    [75, 0, 2, 6],
+                    [75, 0, 2, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+        
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function down() {
+                const actions = [
+                    [75, 0, 4, 1],
+                    [75, 0, 4, 2],
+                    [75, 0, 4, 3],
+                    [75, 0, 4, 4],
+                    [75, 0, 4, 5],
+                    [75, 0, 4, 6],
+                    [75, 0, 4, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+         <div class='row'>
+            <button onclick='canttouchthis()'>Can't Touch This</button> 
+            <button onclick='jinglebellrock()'>Jingle Bell Rock</button>
+            <button onclick='down()'>Down</button>
+         </div>
+         <!-- End experimental -->
+
+    </section>
+
+    <section id='songs3'>
+        <h2>Songs Pack 3:</h2>
+        <p>Only works if you have Songs Pack 3 DLC loaded</p>
+
+        <!-- Experimental -->
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function stillintoyou() {
+                const actions = [
+                    [75, 0, 1, 1,], 
+                    [75, 0, 1, 2,], 
+                    [75, 0, 1, 3,], 
+                    [75, 0, 1, 4,], 
+                    [75, 0, 1, 5,], 
+                    [75, 0, 1, 6,], 
+                    [75, 0, 1, 7,] 
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function callmemaybe() {
+                const actions = [
+                    [75, 0, 2, 1],
+                    [75, 0, 2, 2],
+                    [75, 0, 2, 3],
+                    [75, 0, 2, 4],
+                    [75, 0, 2, 5],
+                    [75, 0, 2, 6],
+                    [75, 0, 2, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function riptide() {
+                const actions = [
+                    [75, 0, 4, 1],
+                    [75, 0, 4, 2],
+                    [75, 0, 4, 3],
+                    [75, 0, 4, 4],
+                    [75, 0, 4, 5],
+                    [75, 0, 4, 6],
+                    [75, 0, 4, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+         <div class='row'>
+            <button onclick='stillintoyou()'>Still Into You</button> 
+            <button onclick='callmemaybe()'>Call Me Maybe</button>
+            <button onclick='riptide()'>Riptide</button>
+         </div>
+         <!-- End experimental -->
+
+    </section>
+
+    <section id='songs4'>
+        <h2>Songs Pack 4:</h2>
+        <p>Only works if you have Songs Pack 4 DLC loaded</p>
+
+        <!-- Experimental -->
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function besttime() {
+                const actions = [
+                    [75, 0, 1, 1,], 
+                    [75, 0, 1, 2,], 
+                    [75, 0, 1, 3,], 
+                    [75, 0, 1, 4,], 
+                    [75, 0, 1, 5,], 
+                    [75, 0, 1, 6,], 
+                    [75, 0, 1, 7,] 
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function stay() {
+                const actions = [
+                    [75, 0, 2, 1],
+                    [75, 0, 2, 2],
+                    [75, 0, 2, 3],
+                    [75, 0, 2, 4],
+                    [75, 0, 2, 5],
+                    [75, 0, 2, 6],
+                    [75, 0, 2, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function hanazuki() {
+                const actions = [
+                    [75, 0, 3, 1],
+                    [75, 0, 3, 2],
+                    [75, 0, 3, 3],
+                    [75, 0, 3, 4],
+                    [75, 0, 3, 5],
+                    [75, 0, 3, 6],
+                    [75, 0, 3, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function callmemaybe2() {
+                const actions = [
+                    [75, 0, 4, 1],
+                    [75, 0, 4, 2],
+                    [75, 0, 4, 3],
+                    [75, 0, 4, 4],
+                    [75, 0, 4, 5],
+                    [75, 0, 4, 6],
+                    [75, 0, 4, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+         <div class='row'>
+            <button onclick='besttime()'>Best Time Ever</button> 
+            <button onclick='stay()'>Stay</button>
+            <button onclick='hanazuki()'>Hanazuki</button>
+            <button onclick='callmemaybe2()'>Call Me Maybe</button>
+         </div>
+         <!-- End experimental -->
+
+    </section>
+
+    <section id='songs5'>
+        <h2>Songs Pack 5:</h2>
+        <p>Only works if you have Songs Pack 5 DLC loaded</p>
+
+        <!-- Experimental -->
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function hanazuki2() {
+                const actions = [
+                    [75, 0, 0, 1,], 
+                    [75, 0, 0, 2,], 
+                    [75, 0, 0, 3,], 
+                    [75, 0, 0, 4,], 
+                    [75, 0, 0, 5,], 
+                    [75, 0, 0, 6,], 
+                    [75, 0, 0, 7,] 
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function callmemaybe3() {
+                const actions = [
+                    [75, 0, 1, 1,], 
+                    [75, 0, 1, 2,], 
+                    [75, 0, 1, 3,], 
+                    [75, 0, 1, 4,], 
+                    [75, 0, 1, 5,], 
+                    [75, 0, 1, 6,], 
+                    [75, 0, 1, 7,] 
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function thesign() {
+                const actions = [
+                    [75, 0, 2, 1],
+                    [75, 0, 2, 2],
+                    [75, 0, 2, 3],
+                    [75, 0, 2, 4],
+                    [75, 0, 2, 5],
+                    [75, 0, 2, 6],
+                    [75, 0, 2, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function gangnam() {
+                const actions = [
+                    [75, 0, 4, 1],
+                    [75, 0, 4, 2],
+                    [75, 0, 4, 3],
+                    [75, 0, 4, 4],
+                    [75, 0, 4, 5],
+                    [75, 0, 4, 6],
+                    [75, 0, 4, 7]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+         <div class='row'>
+            <button onclick='hanazuki2()'>Hanazuki</button> 
+            <button onclick='callmemaybe3()'>Call Me Maybe</button> 
+            <button onclick='thesign()'>The Sign</button>
+            <button onclick='gangnam()'>Gangnam Style</button>
+         </div>
+
+         <p style='margin-top:20px;'>Random Soundbites</p>
+         <div class='row'>
+            <button onclick='triggerAction(75,0,3,1)'>Birthday</button>
+            <button onclick='triggerAction(75,0,3,4)'>Surprise</button>
+            <button onclick='triggerAction(75,0,3,5)'>Not Sorry</button>
+            <button onclick='triggerAction(75,0,3,6)'>Love Cake</button>
+         </div>
+         <!-- End experimental -->
+
+    </section>
+
+    <section id='songs6'>
+        <h2>Songs Pack 6:</h2>
+        <p>Only works if you have Songs Pack 6 DLC loaded</p>
+
+        <!-- Experimental -->
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+    
+            function unsteady() {
+                const actions = [
+                    [75, 0, 1, 2,], 
+                    [75, 0, 1, 3,], 
+                    [75, 0, 1, 4,], 
+                    [75, 0, 1, 5,]
+                    // Add more actions as needed
+                ];
+    
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+        <script>
+            function triggerAction(a, b, c, d) {
+                console.log(`Action triggered with values: ${a}, ${b}, ${c}, ${d}`);
+                // Add your action logic here
+            }
+
+            function bestsongever() {
+                const actions = [
+                    [75, 0, 4, 2],
+                    [75, 0, 4, 3],
+                    [75, 0, 4, 4],
+                    [75, 0, 4, 5]
+                    // Add more actions as needed
+                ];
+
+                actions.forEach((action, index) => {
+                    setTimeout(() => {
+                        triggerAction(...action);
+                    }, index * 10000); // 1000ms = 1 second delay between actions
+                });
+            }
+        </script>
+
+         <div class='row'>
+            <button onclick='unsteady()'>Unsteady</button> 
+            <button onclick='bestsongever()'>Best Song Ever</button>
+         </div>
+
+         <p style='margin-top:20px;'>Random Soundbites</p>
+         <div class='row'>
+            <button onclick='triggerAction(75,0,2,5)'>Wow Big</button>
+            <button onclick='triggerAction(75,0,3,2)'>Peaceful</button>
+            <button onclick='triggerAction(75,0,3,3)'>Sniff</button>
+            <button onclick='triggerAction(75,0,2,4)'>Italian?</button>
+         </div>
+         <div class='row'>
+            <button onclick='triggerAction(75,0,0,0)'>New Video</button>
+            <button onclick='triggerAction(75,0,0,7)'>Corgi Love</button>
+            <button onclick='triggerAction(75,0,0,5)'>Too Cool</button>
+            <button onclick='triggerAction(75,0,3,5)'>Evil Laugh</button>
+         </div>
+         <!-- End experimental -->
+
+    </section>
+
+    <section id='no-web-bluetooth'>
+        <h3>Sorry, this browser doesn't seem to support Web Bluetooth. Works best with Chrome for Android.</h3>
+    </section>
+</div>
+
+
+<div id="console">
+    <button onclick='log2clipboard()' class='clip'>Copy to Clipboard</button> <h3 onclick='toggleConsole()'>Log Output</h3>
+<div id="out" style="white-space:pre"></div>
+</div>
+
+<script>
+var dlcsel = document.getElementById('dlcname');
+var s = document.createElement('script');
+s.src = 'furble.js?' + Math.random();
+document.body.appendChild(s);
+s.onload = () => {
+    log('ready!');
+    enableButtons(false);
+    updateCurrentSection();
+    loadDLCIndex();
+}
+    
+var out = document.getElementById('out');
+out.addEventListener('transitionend', e => out.scrollTop=out.scrollHeight);
+function toggleConsole() {
+    document.getElementById('console').classList.toggle('expanded');
+}
+
+document.querySelectorAll('input[type=number]').forEach(el => {
+    el.addEventListener('focus', () => {
+        el.select();
+        document.body.classList.add('keyboard');
+    });
+    el.addEventListener('blur', el => document.body.classList.remove('keyboard'));
+})
+
+function showStatus(msg, cls) {
+    let el = document.getElementById('status');
+    el.className = '';
+    el.classList.add('on');
+    el.classList.add(cls);
+    el.textContent = msg;
+    setTimeout(() => el.classList.remove('on'), 1500);
+    log(cls + ': ' + msg);
+}
+
+var msg = {
+    ok: s => showStatus(s, 'ok'),
+    error: s => showStatus(s, 'error'),
+};
+
+function updateCurrentSection() {
+    let current = location.hash.substr(1);
+    if (current == '') current = 'dlc';
+    if ('bluetooth' in navigator === false) 
+        current = 'no-web-bluetooth';
+    showSection(current);
+}
+
+window.onhashchange = updateCurrentSection; 
+let currentSection = '';
+let dlcdata = {};
+
+
+function showSection(section) {
+    if (currentSection) {
+        try {
+            document.querySelector('section#' + currentSection).classList.remove('current');
+            document.querySelector(`a[href="#${currentSection}`).classList.remove('current');
+        } catch (e) {}
+        
+    }
+    currentSection = section;
+    document.querySelector('section#' + currentSection).classList.add('current');
+    document.querySelector(`a[href="#${currentSection}`).classList.add('current');
+}
+
+async function loadDLCIndex() {
+    let resp = await fetch('dlc/index.js');
+    let data = await resp.json();
+
+    for (let dlc of data) {
+        let opt = document.createElement('option');
+        if (dlc.file.length > 12) {
+            log('DLC filename must be <= 12 chars, got ' + dlc.file);
+        }
+            
+        dlcdata[dlc.file] = dlc;
+        opt.value = dlc.file;
+        opt.textContent = dlc.title;
+        dlcsel.appendChild(opt);
+    }
+}
+
+async function dlcUploadClicked() {
+    let dlcfile = dlcsel.options[dlcsel.selectedIndex].value;
+    let params = dlcdata[dlcfile];
+    console.log('DLC upload clicked', params);
+    await fetchAndUploadDLC('dlc/'+dlcfile);
+    setupDLCButtons(params);
+    showSection('actions');
+}
+
+function setupDLCButtons(dlcParams) {
+    let container = document.getElementById('dlc-actions');
+    container.childNodes.forEach(el => el.parentNode.removeChild(el));
+    dlcParams.buttons.forEach(p => {
+        let button = document.createElement('button');
+        button.textContent = p.title;
+        button.onclick = () => {
+            log('Triggering ' + p.title + ' for dlc ' + dlcParams.file);
+            triggerAction.apply(null, p.action);
+        };
+        container.appendChild(button);
+    });
+}
+
+function log2clipboard() {
+    let range = document.createRange();
+    range.selectNode(out);
+    window.getSelection().addRange(range);
+    document.execCommand('copy');
+    msg.ok('Copied to clipboard');
+}
+
+</script>
+
+</body>
+</html>
